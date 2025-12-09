@@ -4,7 +4,7 @@ metadata:
   name: web-app
   namespace: webapp
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
       app: web-app
@@ -13,9 +13,34 @@ spec:
       labels:
         app: web-app
     spec:
+      automountServiceAccountToken: false
       containers:
         - name: web-app
           image: keaganveness/web-app:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 2
+            periodSeconds: 5
