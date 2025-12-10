@@ -41,6 +41,42 @@ You can see a live demo here: http://demo.keaganveness.com:30080
 
 ## 3. Architecture Overview
 
+```mermaid
+flowchart LR
+    subgraph Client["Client"]
+        BROWSER["User Browser"]
+    end
+
+    subgraph Cloud["Internet / Firewall"]
+        FW["Firewall (TCP 30080 allowed)"]
+    end
+
+    subgraph VM["Ubuntu 22.04 VM"]
+        subgraph K3S["k3s Kubernetes Cluster"]
+            subgraph NS["Namespace: webapp"]
+                NPSVC["Service: nginx-lb (NodePort 30080)"]
+                NGINX["nginx-lb Deployment"]
+
+                APPSVC["Service: web-app (ClusterIP)"]
+                APP1["web-app Pod 1"]
+                APP2["web-app Pod 2+"]
+            end
+        end
+    end
+
+    subgraph Registry["Container Registry"]
+        DH["Docker Hub: keaganveness/web-app"]
+    end
+
+    BROWSER -->|"HTTP :30080"| FW --> NPSVC --> NGINX
+    NGINX -->|"proxy_pass /"| APPSVC
+    APPSVC --> APP1
+    APPSVC --> APP2
+
+    DH --> APP1
+    DH --> APP2
+```
+
 ### 1) The Web Application
 
 A simple Node.js HTTP server (provided in the assessment) that returns:
@@ -242,4 +278,3 @@ With more time, I would add the following:
 ## 13. Conclusion
 
 This project demonstrates a practical, production-minded approach to running a containerized web application. I've kept the design intentionally simple and transparent so that each componenent can be easily reviewed and reproduced.
-
