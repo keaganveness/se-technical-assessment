@@ -210,4 +210,3 @@ To remove all Kubernetes resources, you can run the `destroy.sh` script from the
 chmod +x destroy.sh
 ./destroy.sh
 ```
-
