@@ -22,4 +22,4 @@ jobs:
         run: node -c index.js || true  # Node has no strict linter, but this catches syntax errors
 
       - name: Build Docker image
-        run: docker build -t assessment-app:ci-test .
+        run: docker build -t assessment-app:ci-test ./app
