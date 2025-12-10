@@ -200,11 +200,23 @@ Network exposure is tightly restricted:
 
 ### NGINX Hardening
 
-TODO: I need to do some additional hardening in the NGINX config.
+I added the following lightweight security controls to NGINX:
 
-## 11. Cleanup
+* Disabled NGINX server version exposure (`server_tokens off`) so attackers can't easily see it
+* Added standard security headers (`X-Frame-Options`, `X-Content-Type-Options`, `X-XSS-Protection`)
+* Limited request body size to 1MB (`client_max_body_size 1m`) since this app doesn't handle uploads. This reduces the risk of large-body abuse or accidental huge requests.
+* Ensure only the `/` path is proxied to the backend to prevent accident access to internal or unintended paths (if there were ones other than the NGINX defaults)
 
-To remove all Kubernetes resources, you can run the `destroy.sh` script from the repo's root:
+## 11. CI Workflow
+
+I've included a very simple GitHub Actions workflow that runs automatically on every push to main. It performs two basic checks:
+
+* Validates the syntax of the Node.js application
+* Builds the Docker image to ensure the Dockerfile is correct
+
+## 12. Cleanup
+
+To remove all Kubernetes resources, you can run the destroy script from the repo's root:
 
 ```
 chmod +x destroy.sh
@@ -221,4 +233,8 @@ With more time, I would add the following:
 * GitOps driven deployments using Helm and ArgoCD
 * Kubernetes NetWorkPolicies to restrict pod-to-pod communication
 * Centralised logging + dashboard with Prometheus and Grafana
+
+## 13. Conclusion
+
+This project demonstrates a practical, production-minded approach to running a containerized web application. I've kept the design intentionally simple and transparent so that each componenent can be easily reviewed and reproduced.
 
