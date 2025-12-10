@@ -79,7 +79,25 @@ You will need a Linux server (it can be bare metal/VM/cloud) running:
 
 This deployment has been tested on an AWS Lightsail instance.
 
-## 5. Provision the Server
+## 5. Building the Image
+
+I already built and published the image publically to my DockerHub repository at:
+
+```
+keaganveness/web-app:latest
+```
+
+The `web-app` deployment manifest references this already, so it will work as is, but if you want to create the image yourself you can do the following:
+
+```
+cd app
+docker build -t <your-dockerhub-user>/web-app:latest .
+docker push <your-dockerhub-user>/web-app:latest
+```
+
+Then update the image field in the `web-app` deployment manifest.
+
+## 6. Provision the Server
 
 Run the provisioning script from inside the repo's root to install k3s and configure kubectl:
 
@@ -102,7 +120,7 @@ kubectl get nodes
 
 You should see one node in a `Ready` state.
 
-## 6. Deploy the Application Stack
+## 7. Deploy the Application Stack
 
 Run the deploy script from inside the repo's root:
 
@@ -130,5 +148,66 @@ You should see the following:
 * A ClusterIP `web-app` service.
 * A NodePort `nginx-lb` service on port `30080`.
 
-## 7. Accessing the Application
+## 8. Accessing the Application
+
+Ensure TCP port 30080 is open on your firewall.
+
+You can then visit:
+
+```
+http://<server-public-ip>:30080/
+```
+
+## 9. Scaling the Deployment and Verifying Load Balancing
+
+To scale the web application, you can run the following:
+
+```
+kubectl -n webapp scale deploy/web-app --replicas=3
+```
+
+If you refresh the page multiple times, you should see different pod names serving the response. This confirms that NGINX is load balancing your requests across the web app replicas.
+
+You can also scale the NGINX load balancer with the following:
+
+```
+kubectl -n webapp scale deploy/nginx-lb --replicas=2
+```
+
+However this is not necessary for this assessment and can intefere with the 10 second refresh test to validate caching. Each NGINX pod maintains its own cache, so you can get different response states depending on which pod handles the request.
+
+## 10. Security Controls
+
+### Application Pod Security
+
+I added `securityContext` and related config to the `web-app` pods to achieve the following:
+
+* The pods run as **non-root**
+* The pods have a read-only root filesystem
+* Privilege escalation is disabled
+* k8s does not auto-mount a service account token as this application does not need to speak to the api server
+* Setting resource requests/limits and liveness/readiness probes (general app health)
+
+The above follow the principle of **least privilege** access and ensure the application runs with only the permissions it needs.
+
+### Network Exposure
+
+Network exposure is tightly restricted:
+
+* The `web-app` service is ClusterIP (internal only)
+* Only the `nginx-lb` NodePort service is exposed externally on port `30080`.
+* The firewall should only have the required ports open. In AWS I have just opened port 30080.
+
+### NGINX Hardening
+
+TODO: I need to do some additional hardening in the NGINX config.
+
+## 11. Cleanup
+
+To remove all Kubernetes resources, you can run the `destroy.sh` script from the repo's root:
+
+```
+chmod +x destroy.sh
+./destroy.sh
+```
 
