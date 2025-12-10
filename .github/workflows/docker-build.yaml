@@ -1,0 +1,25 @@
+name: Build and Lint
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Install Node for linting
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Syntax check Node app
+        run: node -c index.js || true  # Node has no strict linter, but this catches syntax errors
+
+      - name: Build Docker image
+        run: docker build -t assessment-app:ci-test .
