@@ -12,7 +12,8 @@ data:
     }
 
     http {
-      # Cache definition: 10MB index + up to 100MB data, 60m inactivity
+      server_tokens off;
+
       proxy_cache_path /var/cache/nginx
         levels=1:2
         keys_zone=html_cache:10m
@@ -20,8 +21,7 @@ data:
         inactive=60m
         use_temp_path=off;
 
-      upstream node_app_upstream {
-        # Kubernetes service DNS name
+      upstream web_app_upstream {
         server web-app.webapp.svc.cluster.local:80;
       }
 
@@ -29,20 +29,20 @@ data:
         listen 80;
         server_name _;
 
-        # Basic security headers
         add_header X-Content-Type-Options nosniff;
         add_header X-Frame-Options DENY;
         add_header X-XSS-Protection "1; mode=block";
 
+        client_max_body_size 1m;
+
         location / {
-          proxy_pass http://node_app_upstream;
+          proxy_pass http://web_app_upstream;
 
           proxy_set_header Host $host;
           proxy_set_header X-Real-IP $remote_addr;
           proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
           proxy_set_header X-Forwarded-Proto $scheme;
 
-          # Enable caching for successful HTML responses
           proxy_cache html_cache;
           proxy_cache_valid 200 302 10s;
           proxy_cache_valid 404 1s;
