@@ -77,7 +77,7 @@ flowchart LR
     DH --> APP2
 ```
 
-### 1) The Web Application
+### The Web Application
 
 A simple Node.js HTTP server (provided in the assessment) that returns:
 
@@ -86,16 +86,18 @@ A simple Node.js HTTP server (provided in the assessment) that returns:
 
 It runs inside Kubernetes as the `web-app` deployment using a ClusterIP service.
 
-### 2) The k3s Kubernetes Cluster
+### The Kubernetes Cluster (k3s)
 
-A lightweight Kubernetes distribution. This is installed by the provisioning script (`provision.sh`) on the target server. k3s provides:
+A lightweight Kubernetes distribution. This is installed via the official Rancher installation script inside `provision.sh`, ensuring a minimal and production-ready Kubernetes environment.
+
+k3s provides:
 
 * Deployment scaling
 * Pod restarts and health checks
 * Service discovery
 * Cluster networking 
 
-### 3) The NGINX Load Balancer
+### The NGINX Load Balancer
 
 This runs inside Kubernetes as the `nginx-lb` deployment and is exposed using a NodePort service on port `30080`. 
 
@@ -122,7 +124,7 @@ This deployment has been tested on an AWS Lightsail instance with 2vCPUs, 2GB RA
 
 ## 5. Building the Image
 
-I already built and published the image publically to my DockerHub repository at:
+I already built and published the image publicly to my DockerHub repository at:
 
 ```
 keaganveness/web-app:latest
@@ -215,7 +217,7 @@ You can also scale the NGINX load balancer with the following:
 kubectl -n webapp scale deploy/nginx-lb --replicas=2
 ```
 
-However this is not necessary for this assessment and can intefere with the 10 second refresh test to validate caching. Each NGINX pod maintains its own cache, so you can get different response states depending on which pod handles the request.
+However this is not necessary for this assessment and can interfere with the 10 second refresh test to validate caching. Each NGINX pod maintains its own cache, so you can get different response states depending on which pod handles the request.
 
 ## 10. Security Controls
 
@@ -255,6 +257,8 @@ I've included a very simple GitHub Actions workflow that runs automatically on e
 * Validates the syntax of the Node.js application
 * Builds the Docker image to ensure the Dockerfile is correct
 
+I intentionally excluded image pushing to keep the CI simple and secret-free for this assessment.
+
 ## 12. Cleanup
 
 To remove all Kubernetes resources, you can run the destroy script from the repo's root:
@@ -264,17 +268,18 @@ chmod +x destroy.sh
 ./destroy.sh
 ```
 
-## 12. Future Improvements
+## 13. Future Improvements
 
 With more time, I would add the following:
 
 * TLS termination via cert-manager and Let's Encrypt
 * Horizontal Pod Autoscaling (HPA) based on CPU/RPS
 * NGINX rate limiting or WAF rules
+* Integrate automated, secure image publishing into the CI workflow.
 * GitOps driven deployments using Helm and ArgoCD
 * Kubernetes NetworkPolicies to restrict pod-to-pod communication
 * Centralised logging + dashboard with Prometheus and Grafana
 
-## 13. Conclusion
+## 14. Conclusion
 
-This project demonstrates a practical, production-minded approach to running a containerized web application. I've kept the design intentionally simple and transparent so that each componenent can be easily reviewed and reproduced.
+This project demonstrates a practical, production-minded approach to running a containerized web application. I've kept the design intentionally simple and transparent so that each component can be easily reviewed and reproduced.
