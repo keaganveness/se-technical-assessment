@@ -1,6 +1,6 @@
 # Systems Engineer Technical Assessment
 
-## 1. Summary
+## 1. Introduction
 
 This repository contains a containerized web application, deployed on a lightweight Kubernetes distribution (k3s) and fronted by an NGINX load balancer with basic caching and security controls.
 
@@ -24,6 +24,9 @@ You can see a live demo here: http://demo.keaganveness.com:30080
 ├── provision.sh
 ├── deploy.sh
 ├── destroy.sh
+├── .github/
+│   └── workflows/
+│       └── docker-build.yaml
 ├── app/
 │   ├── index.js
 │   └── Dockerfile
@@ -74,10 +77,12 @@ The deployment script (`deploy.sh`) installs the necessary Kubernetes manifests 
 You will need a Linux server (it can be bare metal/VM/cloud) running:
 
 * Ubuntu 22.04+
+* Minimum specs: 1 vCPU, 1GB RAM, 20GB disk
+* Recommended specs: 2 vCPUs, 2GB RAM, 20GB disk
 * Outbound internet access
 * Sudo privileges
 
-This deployment has been tested on an AWS Lightsail instance.
+This deployment has been tested on an AWS Lightsail instance with 2vCPUs, 2GB RAM, 30GB disk.
 
 ## 5. Building the Image
 
@@ -231,7 +236,7 @@ With more time, I would add the following:
 * Horizontal Pod Autoscaling (HPA) based on CPU/RPS
 * NGINX rate limiting or WAF rules
 * GitOps driven deployments using Helm and ArgoCD
-* Kubernetes NetWorkPolicies to restrict pod-to-pod communication
+* Kubernetes NetworkPolicies to restrict pod-to-pod communication
 * Centralised logging + dashboard with Prometheus and Grafana
 
 ## 13. Conclusion
