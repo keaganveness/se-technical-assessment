@@ -210,3 +210,15 @@ To remove all Kubernetes resources, you can run the `destroy.sh` script from the
 chmod +x destroy.sh
 ./destroy.sh
 ```
+
+## 12. Future Improvements
+
+With more time, I would add the following:
+
+* TLS termination via cert-manager and Let's Encrypt
+* Horizontal Pod Autoscaling (HPA) based on CPU/RPS
+* NGINX rate limiting or WAF rules
+* GitOps driven deployments using Helm and ArgoCD
+* Kubernetes NetWorkPolicies to restrict pod-to-pod communication
+* Centralised logging + dashboard with Prometheus and Grafana
+
