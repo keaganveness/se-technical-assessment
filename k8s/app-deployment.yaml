@@ -4,7 +4,8 @@ metadata:
   name: web-app
   namespace: webapp
 spec:
-  replicas: 3
+  # Will initially deploy as 1 replica and reviewer can scale to 3 as outlined in the README.md
+  replicas: 1
   selector:
     matchLabels:
       app: web-app
